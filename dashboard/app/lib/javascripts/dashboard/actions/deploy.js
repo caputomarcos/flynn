@@ -61,6 +61,7 @@ var deployFromGithub = function (meta, appData) {
 		if (appData.hasOwnProperty('id')) {
 			return client.getAppRelease(appData.id).then(function (args) {
 				appData.env = args[0].env;
+				return client.getApp(appData.id);
 			});
 		} else {
 			return client.createApp({
@@ -132,10 +133,15 @@ Dispatcher.register(function (event) {
 				github_user: event.ownerLogin,
 				github_repo: event.repoName,
 				branch: event.branchName,
-				rev: event.sha
+				rev: event.sha,
+				clone_url: event.repo.cloneURL
 			}, {
 				id: event.appID
 			});
+		break;
+
+		case 'APP_DEPLOY_RELEASE':
+			Config.client.deployAppRelease(event.appID, event.releaseID);
 		break;
 	}
 });
